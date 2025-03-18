@@ -9,7 +9,7 @@ class GameManager
 
     public GameManager()
     {
-        _title = "CSE 210 Game";
+        _title = "Captain Catcher";
     }
 
     /// <summary>
