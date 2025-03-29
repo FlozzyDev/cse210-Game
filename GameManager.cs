@@ -6,7 +6,7 @@ public class GameManager
     public const int SCREEN_HEIGHT = 600;
 
     private string _title;
-    private Player _player;
+    private Player _player = null!; // null_forgiving_operator.md
     private List<GameObject> _items;
     private int _spawnTimer;
     private int _spawnDelay = 30; 
@@ -19,19 +19,12 @@ public class GameManager
         _items = new List<GameObject>();
         _spawnTimer = 0;
         _gameOver = false;
-        _player = new Player(0, 0);
     }
 
-    /// <summary>
-    /// The overall loop that controls the game. It calls functions to
-    /// handle interactions, update game elements, and draw the screen.
-    /// </summary>
     public void Run()
     {
         Raylib.SetTargetFPS(60);
         Raylib.InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, _title);
-        // If using sound, un-comment the lines to init and close the audio device
-        // Raylib.InitAudioDevice();
 
         InitializeGame();
 
@@ -60,25 +53,17 @@ public class GameManager
                 break;
         }
 
-        // Raylib.CloseAudioDevice();
         Raylib.CloseWindow();
     }
 
-    /// <summary>
-    /// Sets up the initial conditions for the game.
-    /// </summary>
     private void InitializeGame()
-    {
-        _player = new Player(SCREEN_WIDTH/2, SCREEN_HEIGHT - 100);
+    {   
         _backgroundTexture = Raylib.LoadTexture("assets/ship_background.png");
+        _player = new Player(SCREEN_WIDTH/2, SCREEN_HEIGHT - 100);
     }
 
-    /// <summary>
-    /// Processes any actions such as moving objects or handling collisions. Adding spawn as well
-    /// </summary>
     private void ProcessActions()
     {
-
         _player.Move();
 
         _spawnTimer++;
@@ -88,6 +73,7 @@ public class GameManager
             _spawnTimer = 0;
         }
 
+        var itemsToRemove = new List<GameObject>();
         foreach (var item in _items)
         {
             item.Move();
@@ -95,23 +81,26 @@ public class GameManager
             if (item is Treasure treasure && item.CollidesWithObject(_player))
             {
                 _player.AddScore(treasure.GetPoint());
-                _items.Remove(item);
+                itemsToRemove.Add(item);
             }
+
             else if (item is Bomb bomb && item.CollidesWithObject(_player))
             {
                 _player.LoseLife(bomb.GetDamage());
-                _items.Remove(item);
+                itemsToRemove.Add(item);
                 if (_player.IsGameOver())
                 {
                     _gameOver = true;
                 }
             }
-
-            else if ((item is Treasure t && t.IsOffScreen()) || // if item is off screen, remove it
-                     (item is Bomb b && b.IsOffScreen()))
+            else if ((item is Treasure t && t.IsOffScreen()) || (item is Bomb b && b.IsOffScreen()))
             {
-                _items.Remove(item);
+                itemsToRemove.Add(item);
             }
+        }
+        foreach (var item in itemsToRemove)
+        {
+            _items.Remove(item);
         }
     }
 
@@ -128,9 +117,6 @@ public class GameManager
         }
     }
 
-    /// <summary>
-    /// Draws all elements on the screen.
-    /// </summary>
     private void DrawElements() // background / player / items / score
     {
         

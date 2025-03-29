@@ -1,4 +1,6 @@
 using Raylib_cs;
+using System;
+using System.IO;
 
 public class GameObject
 {
@@ -11,7 +13,7 @@ public class GameObject
     protected Color _color;
     protected Texture2D? _texture;
 
-    public GameObject(int x, int y, int width, int height, Color color) // leaving in color in case the asset doesn't load or something
+    public GameObject(int x, int y, int width, int height, Color color) // leaving in color in case the asset doesn't load 
     {
         _positionX = x;
         _positionY = y;
@@ -51,8 +53,21 @@ public class GameObject
         return Raylib.CheckCollisionRecs(GetBounds(), gameObject.GetBounds()); // I love this library, makes life much easier
     }
 
-    protected void LoadTexture(string path)
+    protected virtual void LoadTexture(string path)
     {
-        _texture = Raylib.LoadTexture(path);
+        try
+        {
+            string fullPath = Path.GetFullPath(path);
+            if (!File.Exists(fullPath))
+            {
+                return;
+            }
+            _texture = Raylib.LoadTexture(fullPath);
+        }   
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error loading texture: {e.Message}");
+            _texture = null;
+        }
     }
 }

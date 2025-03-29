@@ -27,11 +27,11 @@ public class Player : GameObject
 
     public override void Move() // override to allow left/right (so long as it doesn't go off screen)
     {
-        if (Raylib.IsKeyDown(KeyboardKey.Left) && _positionX > 0)
+        if ((Raylib.IsKeyDown(KeyboardKey.Left) || Raylib.IsKeyDown(KeyboardKey.A)) && _positionX > 0)
         {
             _velocityX = -SPEED;
         }
-        else if (Raylib.IsKeyDown(KeyboardKey.Right) && _positionX < GameManager.SCREEN_WIDTH - _width)
+        else if ((Raylib.IsKeyDown(KeyboardKey.Right) || Raylib.IsKeyDown(KeyboardKey.D)) && _positionX < GameManager.SCREEN_WIDTH - _width)
         {
             _velocityX = SPEED;
         }

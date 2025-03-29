@@ -15,7 +15,7 @@ public class Bomb : GameObject
         return _positionY > GameManager.SCREEN_HEIGHT;
     }
 
-    public int GetDamage()
+    public int GetDamage() // maybe make this a higher number if we change the health up
     {
         return 1;
     }
