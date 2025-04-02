@@ -60,12 +60,13 @@ public class GameManager
     {   
         _backgroundTexture = Raylib.LoadTexture("assets/ship_background.png");
         _player = new Player(SCREEN_WIDTH/2, SCREEN_HEIGHT - 100);
+        _items.Add(_player);
     }
 
     private void ProcessActions()
-    {
-        _player.Move();
-
+    {   
+        var itemsToRemove = new List<GameObject>();
+        
         _spawnTimer++;
         if (_spawnTimer >= _spawnDelay)
         {
@@ -73,34 +74,36 @@ public class GameManager
             _spawnTimer = 0;
         }
 
-        var itemsToRemove = new List<GameObject>();
         foreach (var item in _items)
         {
             item.Move();
 
-            if (item is Treasure treasure && item.CollidesWithObject(_player))
+            foreach (var collisionItem in _items)
             {
-                _player.AddScore(treasure.GetPoint());
-                itemsToRemove.Add(item);
-            }
-
-            else if (item is Bomb bomb && item.CollidesWithObject(_player))
-            {
-                _player.LoseLife(bomb.GetDamage());
-                itemsToRemove.Add(item);
-                if (_player.IsGameOver())
+                if (item == _player && collisionItem != _player && item.CollidesWithObject(collisionItem))
                 {
-                    _gameOver = true;
+                    item.HandleCollision(collisionItem);
+                    collisionItem.HandleCollision(item);
                 }
             }
-            else if ((item is Treasure t && t.IsOffScreen()) || (item is Bomb b && b.IsOffScreen()))
+
+            if (item.ShouldRemove())
             {
                 itemsToRemove.Add(item);
             }
         }
+
         foreach (var item in itemsToRemove)
         {
-            _items.Remove(item);
+            if (item != _player) // Just makke sure we never remove player
+            {
+                _items.Remove(item);
+            }
+        }
+
+        if (_player.IsGameOver())
+        {
+            _gameOver = true;
         }
     }
 
@@ -117,12 +120,10 @@ public class GameManager
         }
     }
 
-    private void DrawElements() // background / player / items / score
+    private void DrawElements()
     {
         
         Raylib.DrawTexture(_backgroundTexture, 0, 0, Color.White);
-
-        _player.Draw();
 
         foreach (var item in _items)
         {

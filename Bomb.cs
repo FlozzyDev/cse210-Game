@@ -3,6 +3,7 @@ using Raylib_cs;
 public class Bomb : GameObject
 {
     private const int SIZE = 40;
+    private const int DAMAGE_VALUE = -1;
 
     public Bomb(int x, int y) : base(x, y, SIZE, SIZE, Color.Red)
     {
@@ -10,14 +11,14 @@ public class Bomb : GameObject
         LoadTexture("assets/bomb.png");
     }
 
-    public bool IsOffScreen()
+    public override void HandleCollision(GameObject other)
     {
-        return _positionY > GameManager.SCREEN_HEIGHT;
+        _shouldRemove = true;
     }
 
-    public int GetDamage() // maybe make this a higher number if we change the health up
+    public override int GetCollisionValue()
     {
-        return 1;
+        return DAMAGE_VALUE;
     }
 }
 

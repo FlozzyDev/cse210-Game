@@ -14,7 +14,7 @@ public class Player : GameObject
         LoadTexture("assets/captain.png");
     }
 
-    public override void Draw() // adding a hp counter
+    public override void Draw()
     {
         base.Draw();
         for (int i = 0; i < _lives; i++)
@@ -25,7 +25,7 @@ public class Player : GameObject
         }
     }
 
-    public override void Move() // override to allow left/right (so long as it doesn't go off screen)
+    public override void Move()
     {
         if ((Raylib.IsKeyDown(KeyboardKey.Left) || Raylib.IsKeyDown(KeyboardKey.A)) && _positionX > 0)
         {
@@ -43,14 +43,22 @@ public class Player : GameObject
         base.Move();
     }
 
-    public void AddScore(int point)
+    public override void HandleCollision(GameObject other)
     {
-        _score += point;
+        int value = other.GetCollisionValue();
+        if (value > 0)
+        {
+            _score += value;
+        }
+        else if (value < 0)
+        {
+            _lives += value; // Adding the negative value, so hurting the player
+        }
     }
 
-    public void LoseLife(int value)
+    public override bool IsOffScreen()
     {
-        _lives = _lives - value;
+        return false; // Player can never be off screen
     }
 
     public bool IsGameOver()
@@ -67,5 +75,4 @@ public class Player : GameObject
     {
         return _score;
     }
-
 }

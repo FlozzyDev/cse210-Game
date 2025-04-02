@@ -3,6 +3,7 @@ using Raylib_cs;
 public class Treasure : GameObject
 {
     private const int SIZE = 40;
+    private const int POINT_VALUE = 1;
 
     public Treasure(int x, int y) : base(x, y, SIZE, SIZE, Color.Gold)
     {
@@ -10,13 +11,13 @@ public class Treasure : GameObject
         LoadTexture("assets/gem.png");
     }
 
-    public int GetPoint() // This way I can change the point value, going to look at randomizing it
+    public override void HandleCollision(GameObject other)
     {
-        return 1;
+        _shouldRemove = true;
     }
 
-    public bool IsOffScreen()
+    public override int GetCollisionValue()
     {
-        return _positionY > GameManager.SCREEN_HEIGHT;
+        return POINT_VALUE;
     }
 }

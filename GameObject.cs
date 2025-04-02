@@ -1,6 +1,4 @@
 using Raylib_cs;
-using System;
-using System.IO;
 
 public class GameObject
 {
@@ -12,6 +10,7 @@ public class GameObject
     protected int _height;
     protected Color _color;
     protected Texture2D? _texture;
+    protected bool _shouldRemove;
 
     public GameObject(int x, int y, int width, int height, Color color) // leaving in color in case the asset doesn't load 
     {
@@ -23,6 +22,7 @@ public class GameObject
         _height = height;
         _color = color;
         _texture = null;
+        _shouldRemove = false;
     }
 
     public virtual void Move()
@@ -48,9 +48,28 @@ public class GameObject
         return new Rectangle(_positionX, _positionY, _width, _height);
     }
 
-    public bool CollidesWithObject(GameObject gameObject) // For now it's players, but we can use this for other objects if we leave it as a object check
+    public bool CollidesWithObject(GameObject other)
     {
-        return Raylib.CheckCollisionRecs(GetBounds(), gameObject.GetBounds()); // I love this library, makes life much easier
+        return Raylib.CheckCollisionRecs(GetBounds(), other.GetBounds());
+    }
+
+    public virtual void HandleCollision(GameObject other)
+    {
+    }
+
+    public virtual bool IsOffScreen()
+    {
+        return _positionY > GameManager.SCREEN_HEIGHT;
+    }
+
+    public virtual int GetCollisionValue()
+    {
+        return 0;
+    }
+
+    public bool ShouldRemove()
+    {
+        return _shouldRemove || IsOffScreen();
     }
 
     protected virtual void LoadTexture(string path)
